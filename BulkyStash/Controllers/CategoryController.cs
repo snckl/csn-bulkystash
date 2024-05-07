@@ -1,20 +1,21 @@
-﻿using BulkyStash.Data;
-using BulkyStash.Models;
+﻿using Bulky.DataAccess.Data;
+using Bulky.DataAccess.Repository.IRepository;
+using Bulky.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BulkyStash.Controllers
 {
     public class CategoryController : Controller
     {
-        private readonly ApplicationDbContext _db;
-        public CategoryController(ApplicationDbContext db)
+        private readonly ICategoryRepository _categoryRepository;
+        public CategoryController(ICategoryRepository db)
         {
-            _db = db;
+            _categoryRepository = db;
         }
 
         public IActionResult Index() // By default it is get request
         {
-            List<Category> CategoryList = _db.Categories.ToList();
+            List<Category> CategoryList = _categoryRepository.GetAll().ToList();
             return View(CategoryList);
         }
 
@@ -31,9 +32,9 @@ namespace BulkyStash.Controllers
             //    ModelState.AddModelError("Name","Display Order and Name cannot be same.");
             //}
             if (ModelState.IsValid)
-            { 
-                _db.Categories.Add(category); // Keeps the changes
-                _db.SaveChanges(); // Saves to db
+            {
+                _categoryRepository.Add(category); // Keeps the changes
+                _categoryRepository.Save(); // Saves to db
                 TempData["success"] = "Category created successfully.";
                 return RedirectToAction("Index"); // Redirects to action.If different controller type it after coma
             }
@@ -47,7 +48,7 @@ namespace BulkyStash.Controllers
                 return NotFound();
             } 
 
-            Category? category = _db.Categories.Find(id.Value);
+            Category? category = _categoryRepository.Get(u => u.Id == id);
 
             if(category == null)
             {
@@ -63,8 +64,8 @@ namespace BulkyStash.Controllers
         {
             if (ModelState.IsValid)
             {
-                _db.Categories.Update(category); 
-                _db.SaveChanges();
+                _categoryRepository.Update(category);
+                _categoryRepository.Save();
                 TempData["success"] = "Category updated successfully.";
                 return RedirectToAction("Index"); // Redirects to action.If different controller type it after coma
             }
@@ -78,7 +79,7 @@ namespace BulkyStash.Controllers
                 return NotFound();
             }
 
-            Category? category = _db.Categories.Find(id.Value);
+            Category? category = _categoryRepository.Get(u => u.Id == id );
 
             if (category == null)
             {
@@ -92,13 +93,13 @@ namespace BulkyStash.Controllers
         [HttpPost,ActionName("Delete")]
         public IActionResult DeletePOST(int? id)
         {
-            Category? category = _db.Categories.Find(id);
+            Category? category = _categoryRepository.Get(u => u.Id == id);
             if(category == null)
             {
                 return NotFound();
             }
-            _db.Categories.Remove(category);
-            _db.SaveChanges();
+            _categoryRepository.Remove(category);
+            _categoryRepository.Save();
 
             TempData["success"] = "Category deleted successfully.";
             return RedirectToAction("Index");
