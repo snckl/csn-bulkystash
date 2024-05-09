@@ -23,7 +23,7 @@ namespace BulkyStash.Areas.Admin.Controllers
 
         public IActionResult Index() // By default it is get request
         {
-            List<Product> ProductList = _unitOfWork.Product.GetAll().ToList();
+            List<Product> ProductList = _unitOfWork.Product.GetAll(IncludeProp:"Category").ToList();
             return View(ProductList);
         }
 
@@ -64,6 +64,18 @@ namespace BulkyStash.Areas.Admin.Controllers
                     string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
                     string productPath = Path.Combine(wwwRootPath, @"images\product");
 
+
+                    if (!string.IsNullOrEmpty(productVM.Product.ImageUrl)) 
+                    {
+                        var oldImage = 
+                            Path.Combine(wwwRootPath,productVM.Product.ImageUrl.TrimStart('\\'));
+
+                        if (System.IO.File.Exists(oldImage))
+                        {
+                            System.IO.File.Delete(oldImage);
+                        }
+                    }
+
                     using ( var fileStream = new FileStream(Path.Combine(productPath, fileName), FileMode.Create))
                     {
                         file.CopyTo(fileStream);
@@ -72,7 +84,15 @@ namespace BulkyStash.Areas.Admin.Controllers
                     productVM.Product.ImageUrl = @"\images\product\" + fileName;
                 }
 
-                _unitOfWork.Product.Add(productVM.Product); // Keeps the changes
+                if(productVM.Product.Id == 0)
+                {
+                    _unitOfWork.Product.Add(productVM.Product); // Keeps the changes
+                }
+                else
+                {
+                    _unitOfWork.Product.Update(productVM.Product);
+                }
+                
                 _unitOfWork.Save(); // Saves to db
                 TempData["success"] = "Product created successfully.";
                 return RedirectToAction("Index"); // Redirects to action.If different controller type it after coma
@@ -89,37 +109,45 @@ namespace BulkyStash.Areas.Admin.Controllers
            
         }
 
+        #region API CALLS
+
+        [HttpGet]
+        public IActionResult GetAll()
+        {
+            List<Product> products = _unitOfWork.Product.GetAll(IncludeProp: "Category").ToList();
+            return Json(new {data = products});
+        }
+
+
+        [HttpDelete]
         public IActionResult Delete(int? id)
         {
-            if (id == null || id == 0)
+            var productToBeDeleted = _unitOfWork.Product.Get(u => u.Id == id);
+            if (productToBeDeleted == null)
             {
-                return NotFound();
+                return Json(new { success = false, message = "Error while deleting" });
             }
 
-            Product? product = _unitOfWork.Product.Get(u => u.Id == id);
+            string productPath = @"images\products\product-" + id;
+            string finalPath = Path.Combine(_webHostEnvironment.WebRootPath, productPath);
 
-            if (product == null)
-            {
-                return NotFound();
+            if (Directory.Exists(finalPath)) {
+                string[] filePaths = Directory.GetFiles(finalPath);
+                foreach (string filePath in filePaths) {
+                    System.IO.File.Delete(filePath);
+                }
+
+                Directory.Delete(finalPath);
             }
 
 
-            return View(product);
-        }
-
-        [HttpPost, ActionName("Delete")]
-        public IActionResult DeletePOST(int? id)
-        {
-            Product? product = _unitOfWork.Product.Get(u => u.Id == id);
-            if (product == null)
-            {
-                return NotFound();
-            }
-            _unitOfWork.Product.Remove(product);
+            _unitOfWork.Product.Remove(productToBeDeleted);
             _unitOfWork.Save();
 
-            TempData["success"] = "Product deleted successfully.";
-            return RedirectToAction("Index");
+            return Json(new { success = true, message = "Delete Successful" });
         }
+
+        #endregion
+
     }
 }
