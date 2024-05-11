@@ -15,6 +15,7 @@ namespace Bulky.DataAccess.Data
         public DbSet<Category> Categories { get; set; } // To create a table with add-migration
         public DbSet<Product> Products { get; set; }
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
+        public DbSet<Company> Companies { get; set; } 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -26,6 +27,13 @@ namespace Bulky.DataAccess.Data
                 new Category { Id = 2, Name = "SciFi", DisplayOrder = 2 },
                 new Category { Id = 3, Name = "History", DisplayOrder = 3 },
                 new Category { Id = 4, Name = "Horror", DisplayOrder = 4 }
+                );
+
+            modelBuilder.Entity<Company>().HasData(
+                new Company { Id = 1, Name = "Sci Tech", StreetAddress = "463 Main St", City="New York",PostalCode="12641",State="NY",PhoneNumber="1637526412" },
+                new Company { Id = 2, Name = "PLR Anon", StreetAddress = "3473 Prom St", City = "Gotham", PostalCode = "86453", State = "DC", PhoneNumber = "1235763289" },
+                new Company { Id = 3, Name = "FFF Corp.", StreetAddress = "197 Yul St", City = "Istanbul", PostalCode = "68457", State = "IS", PhoneNumber = "5373266423" },
+                new Company { Id = 4, Name = "YLM Fin Schools", StreetAddress = "57 High St", City = "Unknown", PostalCode = "35746", State = "CA", PhoneNumber = "1685796703" }
                 );
 
             modelBuilder.Entity<Product>().HasData(

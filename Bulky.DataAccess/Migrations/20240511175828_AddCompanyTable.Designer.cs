@@ -4,6 +4,7 @@ using Bulky.DataAccess.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Bulky.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240511175828_AddCompanyTable")]
+    partial class AddCompanyTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -99,48 +102,6 @@ namespace Bulky.DataAccess.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Companies");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            City = "New York",
-                            Name = "Sci Tech",
-                            PhoneNumber = "1637526412",
-                            PostalCode = "12641",
-                            State = "NY",
-                            StreetAddress = "463 Main St"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            City = "Gotham",
-                            Name = "PLR Anon",
-                            PhoneNumber = "1235763289",
-                            PostalCode = "86453",
-                            State = "DC",
-                            StreetAddress = "3473 Prom St"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            City = "Istanbul",
-                            Name = "FFF Corp.",
-                            PhoneNumber = "5373266423",
-                            PostalCode = "68457",
-                            State = "IS",
-                            StreetAddress = "197 Yul St"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            City = "Unknown",
-                            Name = "YLM Fin Schools",
-                            PhoneNumber = "1685796703",
-                            PostalCode = "35746",
-                            State = "CA",
-                            StreetAddress = "57 High St"
-                        });
                 });
 
             modelBuilder.Entity("Bulky.Models.Product", b =>
@@ -493,9 +454,6 @@ namespace Bulky.DataAccess.Migrations
                     b.Property<string>("City")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("CompanyId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -508,8 +466,6 @@ namespace Bulky.DataAccess.Migrations
 
                     b.Property<string>("StreetAddress")
                         .HasColumnType("nvarchar(max)");
-
-                    b.HasIndex("CompanyId");
 
                     b.HasDiscriminator().HasValue("ApplicationUser");
                 });
@@ -574,15 +530,6 @@ namespace Bulky.DataAccess.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("Bulky.Models.ApplicationUser", b =>
-                {
-                    b.HasOne("Bulky.Models.Company", "Company")
-                        .WithMany()
-                        .HasForeignKey("CompanyId");
-
-                    b.Navigation("Company");
                 });
 #pragma warning restore 612, 618
         }

@@ -15,7 +15,7 @@
                 <form id="registerForm" class="row" asp-route-returnUrl="@Model.ReturnUrl" method="post">
                     <h3 class="border-bottom pb-3 mb-4 text-secondary text-center">Create a new account.</h3>
                     <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
-                    <div class="form-floating mb-3 col-md-6">
+                    <div class="form-floating mb-3 col-md-12">
                         <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
                         <label asp-for="Input.Email" class="ms-2 text-muted">Email</label>
                         <span asp-validation-for="Input.Email" class="text-danger"></span>
@@ -65,6 +65,11 @@
                             <option disabled selected>-Select Role-</option>
                         </select>
                     </div>
+                    <div class="form-floating mb-3 col-md-6">
+                        <select asp-for="Input.CompanyId" asp-items="@Model.Input.CompanyList" style="display:none" class="form-select">
+                            <option disabled selected>-Select Company-</option>
+                        </select>
+                    </div>
                     <div class="col-12">
                         <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
                     </div>
@@ -79,27 +84,27 @@
                     @{
                         if ((Model.ExternalLogins?.Count ?? 0) == 0)
                         {
-                            <div>
-                                <p>
-                                    There are no external authentication services configured. See this <a href="https://go.microsoft.com/fwlink/?LinkID=532715">
-                                        article
-                                        about setting up this ASP.NET application to support logging in via external services
-                                    </a>.
-                                </p>
-                            </div>
+                                                <div>
+                                                    <p>
+                                                        There are no external authentication services configured. See this <a href="https://go.microsoft.com/fwlink/?LinkID=532715">
+                                                            article
+                                                            about setting up this ASP.NET application to support logging in via external services
+                                                        </a>.
+                                                    </p>
+                                                </div>
                         }
                         else
                         {
-                            <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
-                                <div>
-                                    <p>
-                                        @foreach (var provider in Model.ExternalLogins!)
+                                                <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
+                                                    <div>
+                                                        <p>
+                                                            @foreach (var provider in Model.ExternalLogins!)
                                         {
-                                            <button type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
+                                                                <button type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
                                         }
-                                    </p>
-                                </div>
-                            </form>
+                                                        </p>
+                                                    </div>
+                                                </form>
                         }
                     }
                 </section>
@@ -112,4 +117,16 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function () {
+            $('#Input_Role').change(function () {
+                var selection = $('#Input_Role option:selected').text();
+                if (selection == 'Company') {
+                    $('#Input_CompanyId').show();
+                } else {
+                    $('#Input_CompanyId').hide();
+                }
+            });
+        });
+    </script>
 }
