@@ -1,7 +1,9 @@
 using Bulky.DataAccess.Repository.IRepository;
 using Bulky.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using System.Security.Claims;
 
 namespace BulkyStash.Areas.Customer.Controllers
 {
@@ -28,11 +30,39 @@ namespace BulkyStash.Areas.Customer.Controllers
         {
             ShoppingCard card = new()
             {
+                Id = 0,
                 Product = _unitOfWork.Product.Get(u => u.Id == id, IncludeProp: "Category"),
                 Count = 1,
                 ProductId =  id
             };
             return View(card);
+        }
+
+        [HttpPost]
+        [Authorize]
+        public IActionResult Details(ShoppingCard card)
+        {
+            var claimsIdentity = (ClaimsIdentity) User.Identity;
+            var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
+            card.ApplicationUserId = userId;
+
+            ShoppingCard cardFromDb = _unitOfWork.ShoppingCard.Get(u =>u.ApplicationUserId == userId && u.ProductId == card.ProductId);
+
+            if(cardFromDb != null)
+            {
+                cardFromDb.Count += card.Count;
+                _unitOfWork.ShoppingCard.Update(cardFromDb);
+            } else
+            {
+                _unitOfWork.ShoppingCard.Add(card);
+                _unitOfWork.Save();
+            }
+
+
+            
+            
+
+            return RedirectToAction(nameof(Index));
         }
 
 

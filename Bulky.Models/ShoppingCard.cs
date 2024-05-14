@@ -11,6 +11,7 @@ namespace Bulky.Models
 {
     public class ShoppingCard
     {
+        [Key]
         public int Id { get; set; }
         public int ProductId { get; set; }
 
