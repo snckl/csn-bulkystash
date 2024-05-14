@@ -26,9 +26,13 @@ namespace BulkyStash.Areas.Customer.Controllers
 
         public IActionResult Details(int id)
         {
-            Product product = _unitOfWork.Product.Get(u => u.Id == id,IncludeProp: "Category");
-
-            return View(product);
+            ShoppingCard card = new()
+            {
+                Product = _unitOfWork.Product.Get(u => u.Id == id, IncludeProp: "Category"),
+                Count = 1,
+                ProductId =  id
+            };
+            return View(card);
         }
 
 
