@@ -1,5 +1,6 @@
 ﻿using Bulky.DataAccess.Data;
 using Bulky.DataAccess.Repository.IRepository;
+using Bulky.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +18,9 @@ namespace Bulky.DataAccess.Repository
         public IShoppingCardRepository ShoppingCard { get; private set; }
         public IApplicationUserRepository ApplicationUser { get; private set; } 
 
+        public IOrderDetailRepository OrderDetail { get; private set; }
+        public IOrderHeaderRepository OrderHeader { get; private set; }
+
         public UnitOfWork(ApplicationDbContext db)
         {
             _db = db;
@@ -25,6 +29,8 @@ namespace Bulky.DataAccess.Repository
             Company = new CompanyRepository(_db);
             ShoppingCard = new ShoppingCardRepository(_db);
             ApplicationUser = new ApplicationUserRepository(_db);
+            OrderDetail = new OrderDetailRepository(_db);
+            OrderHeader = new OrderHeaderRepository(_db);
         }
 
        
