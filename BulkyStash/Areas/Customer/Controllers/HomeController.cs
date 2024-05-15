@@ -28,9 +28,8 @@ namespace BulkyStash.Areas.Customer.Controllers
 
         public IActionResult Details(int id)
         {
-            ShoppingCard card = new()
+            ShoppingCard card = new ShoppingCard()
             {
-                Id = 0,
                 Product = _unitOfWork.Product.Get(u => u.Id == id, IncludeProp: "Category"),
                 Count = 1,
                 ProductId =  id
@@ -42,6 +41,7 @@ namespace BulkyStash.Areas.Customer.Controllers
         [Authorize]
         public IActionResult Details(ShoppingCard card)
         {
+            card.Id = 0;
             var claimsIdentity = (ClaimsIdentity) User.Identity;
             var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
             card.ApplicationUserId = userId;
@@ -55,13 +55,8 @@ namespace BulkyStash.Areas.Customer.Controllers
             } else
             {
                 _unitOfWork.ShoppingCard.Add(card);
-                _unitOfWork.Save();
             }
-
-
-            
-            
-
+            _unitOfWork.Save();
             return RedirectToAction(nameof(Index));
         }
 

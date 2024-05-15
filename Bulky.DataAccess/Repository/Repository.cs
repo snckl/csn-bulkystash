@@ -6,8 +6,10 @@ using System.Text;
 using System.Threading.Tasks;
 using Bulky.DataAccess.Data;
 using Bulky.DataAccess.Repository.IRepository;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NuGet.ProjectModel;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Bulky.DataAccess.Repository
 {
@@ -30,9 +32,18 @@ namespace Bulky.DataAccess.Repository
             dbSet.Add(entity);
         }
 
-        public T Get(Expression<Func<T, bool>> filter, string? IncludeProp = null)
+        public T Get(Expression<Func<T, bool>> filter, string? IncludeProp = null, bool tracked = false)
         {
-            IQueryable<T> query = dbSet;
+            IQueryable<T> query;
+
+            if (tracked)
+            {
+                 query = dbSet;
+            } else
+            {
+                 query = dbSet.AsNoTracking();
+            }
+
             query = query.Where(filter);
             if (!string.IsNullOrEmpty(IncludeProp))
             {
@@ -42,12 +53,17 @@ namespace Bulky.DataAccess.Repository
                     query = query.Include(prop);
                 }
             }
+
             return query.FirstOrDefault();
         }
 
-        public IEnumerable<T> GetAll(string? IncludeProp = null)
+        public IEnumerable<T> GetAll(Expression<Func<T, bool>>? filter = null,string? IncludeProp = null)
         {
             IQueryable<T> query = dbSet;
+            if(filter != null)
+            {
+                query = query.Where(filter);
+            }
             if(!string.IsNullOrEmpty(IncludeProp))
             {
                 foreach(var prop in IncludeProp
