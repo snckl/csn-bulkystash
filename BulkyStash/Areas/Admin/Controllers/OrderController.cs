@@ -1,5 +1,6 @@
 ﻿using Bulky.DataAccess.Repository.IRepository;
 using Bulky.Models;
+using Bulky.Models.ViewModels;
 using Bulky.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
@@ -24,9 +25,19 @@ namespace BulkyStash.Areas.Admin.Controllers
 			return View();
 		}
 
-		#region API CALLS
+        public IActionResult Details(int orderId)
+        {
+            OrderVM orderVm = new()
+            {
+                OrderHeader = _unitOfWork.OrderHeader.Get(u => u.Id == orderId, IncludeProp: "ApplicationUser"),
+                OrderDetail = _unitOfWork.OrderDetail.GetAll(u => u.OrderHeaderId == orderId,IncludeProp:"Product")
+            };
+            return View(orderVm);
+        }
 
-		[HttpGet]
+        #region API CALLS
+
+        [HttpGet]
 		public IActionResult GetAll(string status)
 		{
 			IEnumerable<OrderHeader> orderHeaders = _unitOfWork.OrderHeader.GetAll(IncludeProp: "ApplicationUser").ToList();
