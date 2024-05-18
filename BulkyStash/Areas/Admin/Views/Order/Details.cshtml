@@ -189,7 +189,7 @@
                                 <div class="col-9">
                                     <input asp-for="@Model.OrderHeader.PaymentStatus" type="text" readonly class="form-control" />
                                 </div>
-                            </div
+                            </div>
                             @if (User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_Employee))
                             {
                                 <button asp-action="UpdateOrderDetail" type="submit" class="btn btn-warning form-control my-1">Update Order Details</button>
